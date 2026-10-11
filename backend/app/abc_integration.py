@@ -22,9 +22,9 @@ from typing import Any, Dict
 import numpy as np
 import pandas as pd
 
-from .scenarios import PROJECT_ROOT
 
-_RESEARCH_ABC_FILE = PROJECT_ROOT / "scenario_a_website" / "abc_Multirecloser.py"
+# Path to the bundled research ABC optimizer
+_RESEARCH_ABC_FILE = Path(__file__).resolve().parents[1] / "research" / "abc_Multirecloser.py"
 _PRIVATE_MOD_NAME = "_abc_research_module"
 _research_mod = None
 _import_lock = Lock()

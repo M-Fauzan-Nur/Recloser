@@ -1,18 +1,9 @@
 import { useEffect, useState } from 'react';
 
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 export default function ScenarioView({ scenarioId, scenarioName, fileKind = 'prediction', onAbcResult, runAbc: runAbcProp, authFetch, user }) {
   const isAdmin = user?.role === 'admin';
-
-  const fetchAuth = async (url, opts = {}) => {
-    const r = authFetch
-      ? await authFetch(url, opts)
-      : await fetch(url, opts);
-    if (!r.ok) {
-      const txt = await r.text();
-      throw new Error(`HTTP ${r.status}: ${txt}`);
-    }
-    return r.json();
-  };
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -30,7 +21,7 @@ export default function ScenarioView({ scenarioId, scenarioName, fileKind = 'pre
   useEffect(() => {
     setLoading(true);
     setError(null);
-    fetchAuth(`http://localhost:8000/api/scenarios/${scenarioId}/${fileKind}`)
+    authFetch(`${API}/api/scenarios/${scenarioId}/${fileKind}`)
       .then(setData)
       .catch((e) => setError(String(e)))
       .finally(() => setLoading(false));
@@ -41,7 +32,7 @@ export default function ScenarioView({ scenarioId, scenarioName, fileKind = 'pre
     setLstm(null);
     setLstmLoading(true);
     setLstmError(null);
-    fetchAuth(`http://localhost:8000/api/scenarios/${scenarioId}/lstm/predict`, { method: 'POST' })
+    authFetch(`${API}/api/scenarios/${scenarioId}/lstm/predict`, { method: 'POST' })
       .then(setLstm)
       .catch((e) => setLstmError(String(e)))
       .finally(() => setLstmLoading(false));
@@ -60,8 +51,8 @@ export default function ScenarioView({ scenarioId, scenarioName, fileKind = 'pre
     setAbcLoading(true);
     const startedAt = performance.now();
     try {
-      const url = `http://localhost:8000/api/scenarios/${scenarioId}/abc/optimize?num_reclosers=${numReclosers}`;
-      const j = await fetchAuth(url, { method: 'POST' });
+      const url = `${API}/api/scenarios/${scenarioId}/abc/optimize?num_reclosers=${numReclosers}`;
+      const j = await authFetch(url, { method: 'POST' });
       setAbc({ ...j, _client_ms: Math.round(performance.now() - startedAt) });
       if (onAbcResult) onAbcResult(scenarioId, numReclosers, j);
     } catch (e) {

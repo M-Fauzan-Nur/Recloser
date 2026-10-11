@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 const FAULT_TYPES = ['temporary', 'permanent'];
 const FAKTOR_OPTIONS = ['Cuaca', 'Peralatan', 'Hewan', 'Risiko'];
 
@@ -33,20 +35,13 @@ export default function ManualFaults({ authFetch, user }) {
   const [formError, setFormError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchAuth = async (url, opts = {}) => {
-    const r = authFetch ? await authFetch(url, opts) : await fetch(url, opts);
-    if (!r.ok) {
-      const txt = await r.text();
-      throw new Error(`HTTP ${r.status}: ${txt}`);
-    }
-    return r.json();
-  };
-
   const refresh = async () => {
     setLoading(true);
     setError(null);
     try {
-      const j = await fetchAuth('http://localhost:8000/api/manual-faults');
+      const r = await authFetch(`${API}/api/manual-faults`);
+      if (!r.ok) { const txt = await r.text(); throw new Error(`HTTP ${r.status}: ${txt}`); }
+      const j = await r.json();
       setFaults(j.faults || []);
     } catch (e) {
       setError(String(e));
@@ -114,10 +109,10 @@ export default function ManualFaults({ authFetch, user }) {
         duration_hours: Number(form.duration_hours),
       };
       const url = editingId
-        ? `http://localhost:8000/api/manual-faults/${editingId}`
-        : 'http://localhost:8000/api/manual-faults';
+        ? `${API}/api/manual-faults/${editingId}`
+        : `${API}/api/manual-faults`;
       const method = editingId ? 'PUT' : 'POST';
-      await fetchAuth(url, {
+      await authFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -134,7 +129,7 @@ export default function ManualFaults({ authFetch, user }) {
   const handleDelete = async (id) => {
     if (!confirm('Hapus data gangguan ini?')) return;
     try {
-      await fetchAuth(`http://localhost:8000/api/manual-faults/${id}`, { method: 'DELETE' });
+      await authFetch(`${API}/api/manual-faults/${id}`, { method: 'DELETE' });
       await refresh();
     } catch (e) {
       setError(String(e));

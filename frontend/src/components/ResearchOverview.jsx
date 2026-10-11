@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 const PIPELINE_STEPS = [
   { id: 'dataset',    title: 'Dataset',              desc: 'Skenario A–E, IEEE 69 Bus' },
   { id: 'lstm',       title: 'LSTM',                 desc: 'Fault Risk Prediction' },
@@ -24,8 +26,8 @@ export default function ResearchOverview({ authFetch, onSelectScenario }) {
   useEffect(() => {
     let cancelled = false;
     const fetchPromise = authFetch
-      ? authFetch('http://localhost:8000/api/dashboard')
-      : fetch('http://localhost:8000/api/dashboard');
+      ? authFetch(`${API}/api/dashboard`)
+      : fetch(`${API}/api/dashboard`);
     fetchPromise
       .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then((j) => { if (!cancelled) { setSystem(j); setLoading(false); } })

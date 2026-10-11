@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 function isValidEmail(email) {
   return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
 }
@@ -53,7 +55,7 @@ export default function Register({ onLogin, onCancel }) {
       formData.append('full_name', fullName.trim());
       formData.append('email', email.trim().toLowerCase());
 
-      const r = await fetch('http://localhost:8000/api/auth/register', {
+      const r = await fetch(`${API}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData.toString(),

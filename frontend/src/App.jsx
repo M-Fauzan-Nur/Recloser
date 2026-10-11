@@ -10,6 +10,8 @@ import AbcRun from './components/AbcRun.jsx';
 import ResultsPage from './components/ResultsPage.jsx';
 import './App.css';
 
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 function persistedHeaders(user) {
   if (!user?.token) return {};
   return { Authorization: `Bearer ${user.token}` };
@@ -77,7 +79,7 @@ export default function App() {
   // Fetch pipeline status on mount and after login
   const fetchPipelineStatus = useCallback(async () => {
     try {
-      const r = await authFetch('http://localhost:8000/api/pipeline/status');
+      const r = await authFetch(`${API}/api/pipeline/status`);
       if (!r.ok) return;
       const data = await r.json();
       setPipelineStatus({
@@ -132,7 +134,7 @@ export default function App() {
         }
 
         // Normal load — verify token with backend
-        const r = await fetch('http://localhost:8000/api/auth/me', {
+        const r = await fetch(`${API}/api/auth/me`, {
           headers: { Authorization: `Bearer ${stored.token}` },
         });
         if (r.ok) {
@@ -207,14 +209,14 @@ export default function App() {
   }, [fetchPipelineStatus]);
 
   const runLstm = useCallback(async () => {
-    const r = await authFetch('http://localhost:8000/api/lstm/run', { method: 'POST' });
+    const r = await authFetch(`${API}/api/lstm/run`, { method: 'POST' });
     if (!r.ok) {
       const err = await r.text();
       throw new Error(err);
     }
     const data = await r.json();
 
-    const r2 = await authFetch('http://localhost:8000/api/lstm/results');
+    const r2 = await authFetch(`${API}/api/lstm/results`);
     if (!r2.ok) throw new Error('Failed to fetch LSTM results');
     const lstmData = await r2.json();
 
@@ -228,7 +230,7 @@ export default function App() {
     setAbcLoading(true);
     try {
       const r = await authFetch(
-        `http://localhost:8000/api/abc/run?num_reclosers=${numReclosers}`,
+        `${API}/api/abc/run?num_reclosers=${numReclosers}`,
         { method: 'POST' }
       );
       if (!r.ok) {

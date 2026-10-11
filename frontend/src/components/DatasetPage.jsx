@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react';
 
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 export default function DatasetPage({ authFetch, pipelineStatus, onUploaded }) {
   const fileRef = useRef(null);
   const [uploading, setUploading] = useState(false);
@@ -18,7 +20,7 @@ export default function DatasetPage({ authFetch, pipelineStatus, onUploaded }) {
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const r = await authFetch('http://localhost:8000/api/upload/dataset', {
+      const r = await authFetch(`${API}/api/upload/dataset`, {
         method: 'POST',
         body: formData,
       });

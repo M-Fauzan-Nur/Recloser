@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 function formatBytes(bytes) {
   if (!bytes) return '—';
   if (bytes < 1024) return `${bytes} B`;
@@ -21,7 +23,7 @@ export default function DatasetFilesPage({ authFetch }) {
     setLoading(true);
     setError(null);
     try {
-      const r = await authFetch('http://localhost:8000/api/files');
+      const r = await authFetch(`${API}/api/files`);
       if (!r.ok) throw new Error(await r.text());
       const data = await r.json();
       setFiles(data.files || []);
@@ -35,7 +37,7 @@ export default function DatasetFilesPage({ authFetch }) {
   async function handleDownload(file) {
     setDownloading(file.type);
     try {
-      const r = await authFetch(`http://localhost:8000/api/files/${file.type}/download`);
+      const r = await authFetch(`${API}/api/files/${file.type}/download`);
       if (!r.ok) throw new Error(await r.text());
       const text = await r.text();
       const blob = new Blob([text], { type: 'text/csv;charset=utf-8;' });

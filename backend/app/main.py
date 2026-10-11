@@ -2,6 +2,7 @@ from fastapi import Depends, FastAPI, HTTPException, Query, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 import hashlib
 import io
+import os
 import tempfile
 from pathlib import Path
 
@@ -25,11 +26,14 @@ ensure_bootstrap()
 
 app = FastAPI(title="Recloser Research Backend", version="0.3.0")
 
+_frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:5173")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        _frontend_url,
     ],
     allow_credentials=True,
     allow_methods=[

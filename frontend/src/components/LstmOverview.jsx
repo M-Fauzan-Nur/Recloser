@@ -55,8 +55,8 @@ export default function LstmOverview({ onSelectScenario, authFetch }) {
     Promise.all(
       SCENARIO_IDS.map((id) =>
         (authFetch
-          ? authFetch(`http://localhost:8000/api/scenarios/${id}/lstm/predict`, { method: 'POST' })
-          : fetch(`http://localhost:8000/api/scenarios/${id}/lstm/predict`, { method: 'POST' })
+          ? authFetch(`${API}/api/scenarios/${id}/lstm/predict`, { method: 'POST' })
+          : fetch(`${API}/api/scenarios/${id}/lstm/predict`, { method: 'POST' })
         )
           .then((r) => {
             if (!r.ok) throw new Error(`HTTP ${r.status}`);

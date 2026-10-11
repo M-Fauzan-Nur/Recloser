@@ -10,9 +10,13 @@ No scenario logic — all data comes from user uploads.
 
 from __future__ import annotations
 
-import sys
+import contextlib
+import importlib.util
+import io
 import tempfile
 from pathlib import Path
+from threading import Lock
+from typing import Any, Dict
 
 import pandas as pd
 
@@ -21,7 +25,6 @@ from .scenarios import (
     LSTM_CORE_COLS,
     LSTM_META_COLS,
     LSTM_SEQUENCE_LENGTH,
-    PROJECT_ROOT,
 )
 
 _REQUIRED_COLS = LSTM_CORE_COLS  # validate only the columns LSTM engine actually reads
@@ -46,8 +49,29 @@ def _normalize_columns(df):
     return df
 
 
-# Path to the original research LSTM engine
-_RESEARCH_LSTM_FILE = PROJECT_ROOT / "scenario_a_website" / "lstm_train.py"
+# Path to the bundled research LSTM engine
+_RESEARCH_LSTM_FILE = Path(__file__).resolve().parents[1] / "research" / "lstm_train.py"
+
+
+_PRIVATE_MOD_NAME = "_lstm_research_module"
+_research_mod = None
+_import_lock = Lock()
+
+
+def _load_research_module():
+    global _research_mod
+    if _research_mod is not None:
+        return _research_mod
+    with _import_lock:
+        if _research_mod is not None:
+            return _research_mod
+        spec = importlib.util.spec_from_file_location(_PRIVATE_MOD_NAME, _RESEARCH_LSTM_FILE)
+        if spec is None or spec.loader is None:
+            raise RuntimeError(f"Cannot load spec from {_RESEARCH_LSTM_FILE}")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+    _research_mod = mod
+    return _research_mod
 
 
 def predict_from_dataset(dataset_path: Path) -> dict:
@@ -69,14 +93,11 @@ def predict_from_dataset(dataset_path: Path) -> dict:
             error: str or None
             model_info: str
     """
-    # Add scenario_a_website to sys.path so we can import lstm_train modules
-    scenario_path = str(PROJECT_ROOT / "scenario_a_website")
-    if scenario_path not in sys.path:
-        sys.path.insert(0, scenario_path)
-
     try:
-        from lstm_train import DataProcessor, DirectLSTM
-    except ImportError as e:
+        research = _load_research_module()
+        DataProcessor = research.DataProcessor
+        DirectLSTM = research.DirectLSTM
+    except Exception as e:
         return {
             "source": "error",
             "rows": [],
