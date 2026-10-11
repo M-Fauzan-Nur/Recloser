@@ -1,0 +1,62 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Python virtual environments
+rec/
+venv/
+.venv/
+env/
+**/venv/
+**/.venv/
+
+# Python cache and generated files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Frontend dependencies and build output
+node_modules/
+**/node_modules/
+frontend/dist/
+frontend/build/
+
+# Logs and temporary files
+*.log
+logs/
+tmp/
+temp/
+
+# Local databases and uploaded user data
+*.db
+*.sqlite
+*.sqlite3
+uploads/
+user_data/
+user_uploads/
+
+# Editor and operating system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary backend test files
+backend/__t5_snapshots/
+backend/__t6_snapshots/
+backend/__t9d
+backend/_rg*.json
+backend/_t*.json
+backend/_uv*.err
+backend/_uv*.out
+
+# Local account and fault data
+backend/data/users.json
+backend/data/manual_faults.json
