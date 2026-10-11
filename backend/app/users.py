@@ -16,9 +16,11 @@ Schema:
       "google_sub": str | null   # Google "sub" claim
     }
 """
+
 from __future__ import annotations
 
 import json
+import os
 import threading
 from datetime import datetime, timezone
 from pathlib import Path
@@ -26,11 +28,17 @@ from pathlib import Path
 from passlib.context import CryptContext
 
 _BACKEND_DIR = Path(__file__).resolve().parents[1]
-_DATA_DIR = _BACKEND_DIR / "data"
+
+if os.environ.get("VERCEL") == "1":
+    _DATA_DIR = Path("/tmp/recloser-data")
+else:
+    _DATA_DIR = _BACKEND_DIR / "data"
+
 _DATA_FILE = _DATA_DIR / "users.json"
 
 _lock = threading.Lock()
 _pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 DEFAULT_USERS = [
     {"username": "admin", "password": "admin123", "role": "admin"},
