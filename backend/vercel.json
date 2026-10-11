@@ -1,0 +1,14 @@
+{
+  "installCommand": "pip install -r requirements.txt",
+  "framework": null,
+  "functions": {
+    "api/index.py": {
+      "runtime": "@vercel/python",
+      "maxDuration": 300,
+      "memory": 2048
+    }
+  },
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/index.py" }
+  ]
+}
